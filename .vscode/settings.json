@@ -1,0 +1,16 @@
+{
+    "python.defaultInterpreterPath": "${workspaceFolder}/backend/.venv/bin/python",
+    "python.analysis.extraPaths": [
+        "${workspaceFolder}/backend",
+        "${workspaceFolder}/backend/.venv/lib/python3.13/site-packages"
+    ],
+    "python.languageServer": "Pylance",
+    "python.analysis.diagnosticMode": "workspace",
+    "python.analysis.typeCheckingMode": "basic",
+    "python.venvPath": "${workspaceFolder}/backend",
+    "python.venvFolders": [
+        ".venv"
+    ],
+    "python.terminal.useEnvFile": true,
+    "python.envFile": "${workspaceFolder}/backend/.env"
+}

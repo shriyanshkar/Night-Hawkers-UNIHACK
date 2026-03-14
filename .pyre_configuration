@@ -1,0 +1,13 @@
+{
+  "source_directories": [
+    "backend"
+  ],
+  "site_package_search_strategy": "all",
+  "search_path": [
+    "backend/.venv/lib/python3.13/site-packages"
+  ],
+  "exclude": [
+    "backend/.venv/.*"
+  ],
+  "typeshed": "backend/.venv/lib/python3.13/site-packages/pyre_check/typeshed"
+}

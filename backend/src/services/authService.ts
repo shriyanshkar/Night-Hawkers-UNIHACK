@@ -1,4 +1,4 @@
-import { createUserScopedClient, supabaseAuth } from "../lib/supabase";
+import { supabaseAdmin, createUserScopedClient, supabaseAuth } from "../lib/supabase";
 
 export class AuthServiceError extends Error {
   public statusCode: number;
@@ -48,13 +48,20 @@ const mapSafeUser = (rawUser: {
 export const registerUser = async (
   emailInput: string,
   passwordInput: string,
+  nameInput: string,
 ): Promise<SafeUser> => {
   const email = normalizeEmail(emailInput);
   const password = passwordInput.trim();
+  const name = nameInput.trim();
 
   const { data, error } = await supabaseAuth.auth.signUp({
     email,
     password,
+    options: {
+      data: {
+        full_name: name,
+      },
+    },
   });
 
   if (error?.status === 400) {
@@ -75,6 +82,27 @@ export const registerUser = async (
 
   if (error || !data.user) {
     throw new AuthServiceError(500, "Failed to register user.");
+  }
+
+  // Register in public users table to satisfy foreign keys
+  if (supabaseAdmin) {
+    const { error: syncError } = await supabaseAdmin.from("users").upsert(
+      {
+        id: data.user.id,
+        email: email,
+        full_name: name,
+        updated_at: new Date().toISOString(),
+      },
+      { onConflict: "id" },
+    );
+
+    if (syncError) {
+      console.error("Failed to sync user to public table:", syncError);
+      // We don't necessarily want to fail registration if sync fails, 
+      // but since foreign keys depend on it, we might have to.
+      // For now, let's throw to be safe as per user requirement.
+      throw new AuthServiceError(500, "Failed to synchronize user profile.");
+    }
   }
 
   return mapSafeUser(data.user);

@@ -18,9 +18,10 @@ const sendBadRequest = (message: string, response: Response): void => {
 authRouter.post("/register", async (req, res) => {
   const emailValue = req.body?.email;
   const passwordValue = req.body?.password;
+  const nameValue = req.body?.name;
 
-  if (typeof emailValue !== "string" || typeof passwordValue !== "string") {
-    sendBadRequest("Email and password are required.", res);
+  if (typeof emailValue !== "string" || typeof passwordValue !== "string" || typeof nameValue !== "string") {
+    sendBadRequest("Name, email, and password are required.", res);
     return;
   }
 
@@ -35,7 +36,7 @@ authRouter.post("/register", async (req, res) => {
   }
 
   try {
-    const user = await registerUser(emailValue, passwordValue);
+    const user = await registerUser(emailValue, passwordValue, nameValue);
     res.status(201).json({ user });
   } catch (error) {
     if (error instanceof AuthServiceError) {

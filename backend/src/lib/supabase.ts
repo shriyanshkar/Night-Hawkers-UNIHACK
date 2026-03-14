@@ -4,9 +4,10 @@ import { createClient } from "@supabase/supabase-js";
 
 const supabaseUrl = process.env.SUPABASE_URL;
 const supabaseAnonKey = process.env.SUPABASE_ANON_KEY;
+const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
 
-if (!supabaseUrl || !supabaseAnonKey) {
-  throw new Error("SUPABASE_URL and SUPABASE_ANON_KEY are required.");
+if (!supabaseUrl || (!supabaseAnonKey && !supabaseServiceKey)) {
+  throw new Error("SUPABASE_URL and SUPABASE_ANON_KEY or SUPABASE_SERVICE_ROLE_KEY are required.");
 }
 
 const baseAuthConfig = {
@@ -16,10 +17,14 @@ const baseAuthConfig = {
   },
 };
 
-export const supabaseAuth = createClient(supabaseUrl, supabaseAnonKey, baseAuthConfig);
+export const supabaseAuth = createClient(supabaseUrl!, (supabaseAnonKey || supabaseServiceKey)!, baseAuthConfig);
+
+export const supabaseAdmin = supabaseServiceKey 
+  ? createClient(supabaseUrl!, supabaseServiceKey, baseAuthConfig)
+  : null;
 
 export const createUserScopedClient = (accessToken: string) =>
-  createClient(supabaseUrl, supabaseAnonKey, {
+  createClient(supabaseUrl!, (supabaseAnonKey || supabaseServiceKey)!, {
     ...baseAuthConfig,
     global: {
       headers: {
